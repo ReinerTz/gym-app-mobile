@@ -1,12 +1,7 @@
-enum EMuscleGroup {
-  PECTORAL,
-  BACK,
-  SHOULDERS,
-  BICEPS,
-  TRICEPS,
-  ABDOMEN,
-  LEGS
-}
+
+import 'package:gym_app_mobile/utils/util.dart';
+
+import 'enum/MuscleGroupEnum.dart';
 
 class ExerciseDomain {
   String name;
@@ -24,7 +19,7 @@ class ExerciseDomain {
   factory ExerciseDomain.fromJson(Map<String, dynamic> json) {
     return ExerciseDomain(
       name: json['name'],
-      muscleGroup: List<EMuscleGroup>.from(json['muscleGroup'].map((group) => _muscleGroupFromString(group))),
+      muscleGroup: List<EMuscleGroup>.from(json['muscleGroup'].map((group) => UtilApp.muscleGroupFromString(group))),
       tips: json['tips'] != null ? List<String>.from(json['tips']) : null,
       image: json['image'],
     );
@@ -34,24 +29,4 @@ class ExerciseDomain {
     return jsonList.map((json) => ExerciseDomain.fromJson(json)).toList();
   }
 
-  static EMuscleGroup _muscleGroupFromString(String group) {
-    switch (group) {
-      case 'PECTORAL':
-        return EMuscleGroup.PECTORAL;
-      case 'BACK':
-        return EMuscleGroup.BACK;
-      case 'SHOULDERS':
-        return EMuscleGroup.SHOULDERS;
-      case 'BICEPS':
-        return EMuscleGroup.BICEPS;
-      case 'TRICEPS':
-        return EMuscleGroup.TRICEPS;
-      case 'ABDOMEN':
-        return EMuscleGroup.ABDOMEN;
-      case 'LEGS':
-        return EMuscleGroup.LEGS;
-      default:
-        throw ArgumentError('Invalid muscle group: $group');
-    }
-  }
 }

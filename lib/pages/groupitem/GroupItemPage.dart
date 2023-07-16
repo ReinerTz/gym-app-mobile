@@ -1,158 +1,326 @@
+import 'dart:async';
+
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:gym_app_mobile/domain/TrainingGroupDomain.dart';
+import 'package:gym_app_mobile/widgets/VideoPreviewWidget.dart';
+import 'package:video_player/video_player.dart';
 
-import '../../domain/ExerciseDomain.dart';
 import '../../domain/GroupItemDomain.dart';
+import '../../domain/enum/ERepetitionsTypesEnum.dart';
 import '../../utils/util.dart';
+import '../../widgets/TimerWidget.dart';
+import 'GroupItemController.dart';
 
-class GroupItemPage extends StatelessWidget {
-  final Map<EMuscleGroup, String> muscleGroupTranslations = {
-    EMuscleGroup.PECTORAL: 'Peitoral',
-    EMuscleGroup.BACK: 'Costas',
-    EMuscleGroup.SHOULDERS: 'Ombros',
-    EMuscleGroup.BICEPS: 'Bíceps',
-    EMuscleGroup.TRICEPS: 'Tríceps',
-    EMuscleGroup.ABDOMEN: 'Abdômen',
-    EMuscleGroup.LEGS: 'Pernas',
-  };
+class GroupItemPage extends StatefulWidget {
+  const GroupItemPage({super.key});
+
+  @override
+  _GroupItemPageState createState() => _GroupItemPageState();
+}
+
+class _GroupItemPageState extends State<GroupItemPage> {
+  final GroupItemController controller = Get.put(GroupItemController());
+  int restDuration = 0;
+  RxInt currentCount = 0.obs;
+
+  Timer? timer;
+  RxBool isTimerRunning = false.obs;
+
+  bool showRestTime = true; // Add this variable to control visibility
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (isTimerRunning.value) {
+        currentCount.value++;
+      }
+    });
+    isTimerRunning.value = true;
+  }
+
+  void pauseTimer() {
+    timer?.cancel();
+    isTimerRunning.value = false;
+  }
+
+  void resetTimer() {
+    timer?.cancel();
+    currentCount.value = 0;
+    isTimerRunning.value = false;
+  }
+
+  Color getCounterColor(TrainingGroupDomain trainingGroup) {
+    final minRestInterval = trainingGroup.restInterval.min;
+    final maxRestInterval = trainingGroup.restInterval.max;
+
+    if (currentCount < minRestInterval) {
+      return Colors.yellow;
+    } else if (currentCount >= minRestInterval &&
+        currentCount <= maxRestInterval) {
+      return Colors.green;
+    } else {
+      return Colors.red;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final args = Get.arguments as Map<String, dynamic>;
     final trainingGroup = args['trainingGroup'] as TrainingGroupDomain;
-    final currentIndex = args['currentIndex'] as int;
-    // final training = trainingGroup.items![currentIndex];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(UtilApp.AppName),
-        backgroundColor: Colors.lightGreen,
+        title: Text("Treino: ${trainingGroup.name}"),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Training Group: ${trainingGroup.name}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: trainingGroup.items!.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: trainingGroup.items?.length ?? 0,
                 itemBuilder: (context, index) {
-                  final training = trainingGroup.items![index];
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.all(10),
-                    child: SingleChildScrollView(
-                      child: Card(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              alignment: Alignment.topCenter,
-                              child: training.exercise.image != null
-                                  ? Image.network(
-                                training.exercise.image!,
-                                height: 150,
-                              )
-                                  : Placeholder(
-                                fallbackHeight: 150,
-                              ),
-                            ),
-                            ListTile(
-                              title: Text(
-                                "${training.order + 1} - ${training.exercise.name}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Grupos músculares: ${_translateMuscleGroups(training.exercise.muscleGroup)}',
-                                  ),
-                                  SizedBox(height: 10),
-                                  ExpansionTile(
-                                    title: Text('Tips'),
-                                    children: [
-                                      for (var i = 0; i < (training.exercise.tips?.length ?? 0); i++)
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                          child: ListTile(
-                                            leading: Text('${i + 1}.'),
-                                            title: Text(training.exercise.tips![i]),
+                  final training = trainingGroup.items?[index];
+                  if (training != null) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.all(10),
+                      child: ScrollConfiguration(
+                        behavior: const ScrollBehavior(),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: trainingGroup.items?.length ?? 0,
+                                itemBuilder: (context, index) {
+                                  final training = trainingGroup.items?[index];
+                                  if (training != null) {
+                                    return Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: const EdgeInsets.all(10),
+                                      child: SingleChildScrollView(
+                                        child: Card(
+                                          child: ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                            const NeverScrollableScrollPhysics(),
+                                            itemCount:
+                                            training.item.items?.length ??
+                                                0,
+                                            itemBuilder: (context, index) {
+                                              final item =
+                                              training.item.items?[index];
+                                              if (item != null) {
+                                                return Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: [
+                                                    Visibility(
+                                                      visible: item.exercise
+                                                          .image !=
+                                                          null &&
+                                                          item.exercise.image !=
+                                                              "",
+                                                      child: Container(
+                                                        padding:
+                                                        const EdgeInsets
+                                                            .all(10),
+                                                        alignment:
+                                                        Alignment.topCenter,
+                                                        child:
+                                                        VideoPreviewWidget(
+                                                            videoUrl: item
+                                                                .exercise
+                                                                .image),
+                                                      ),
+                                                    ),
+                                                    ListTile(
+                                                      title: Text(
+                                                        "${training.order + 1} - ${item.exercise.name}",
+                                                        style: const TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      subtitle: Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Text(
+                                                            'Grupos musculares: ${UtilApp.translateMuscleGroups(item.exercise.muscleGroup)}',
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          ExpansionTile(
+                                                            title: const Text(
+                                                                'Dicas'),
+                                                            children: [
+                                                              for (var i = 0;
+                                                              i <
+                                                                  (item.exercise.tips
+                                                                      ?.length ??
+                                                                      0);
+                                                              i++)
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      vertical:
+                                                                      4.0),
+                                                                  child:
+                                                                  ListTile(
+                                                                    leading: Text(
+                                                                        '${i + 1}.'),
+                                                                    title: Text(item
+                                                                        .exercise
+                                                                        .tips![i]),
+                                                                  ),
+                                                                ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+
+                                                          // Extracting the RestTimeWidget and controlling its visibility.
+                                                          if (showRestTime)
+                                                            RestTimeWidget(
+                                                              trainingGroup: trainingGroup,
+                                                              currentCount: currentCount,
+                                                              isTimerRunning: isTimerRunning,
+                                                              startTimer: startTimer,
+                                                              pauseTimer: pauseTimer,
+                                                              resetTimer: resetTimer,
+                                                            ),
+
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          const Text(
+                                                            'Séries',
+                                                            style: TextStyle(
+                                                              fontSize: 20,
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .bold,
+                                                            ),
+                                                          ),
+                                                          DataTable(
+                                                            columns: const [
+                                                              DataColumn(
+                                                                  label: Text(
+                                                                      'Série')),
+                                                              DataColumn(
+                                                                  label: Text(
+                                                                      'Repetições')),
+                                                              DataColumn(
+                                                                  label: Text(
+                                                                      'Cadência')),
+                                                            ],
+                                                            rows: item.sets
+                                                                .map((set) {
+                                                              final repetitions =
+                                                              _formatRepetitions(
+                                                                  set.repetitions,
+                                                                  set.setType);
+                                                              final cadence =
+                                                                  item.cadence;
+
+                                                              return DataRow(
+                                                                cells: [
+                                                                  DataCell(Text(
+                                                                      "${set.order + 1}")),
+                                                                  DataCell(Text(
+                                                                      repetitions)),
+                                                                  DataCell(Text(
+                                                                      cadence)),
+                                                                ],
+                                                              );
+                                                            }).toList(),
+                                                          ),
+                                                          if (item.dropSet !=
+                                                              null &&
+                                                              item.dropSet! > 0)
+                                                            Text(
+                                                                'Drop Set: ${item.dropSet}'),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              } else {
+                                                return const SizedBox();
+                                              }
+                                            },
                                           ),
                                         ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    'Séries',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  for (var set in training.sets)
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("${set.order + 1} - ${_formatRepetitions(set.repetitions, set.setType)}"),
-                                          if (set.dropSet > 0) Text('Drop Set: ${set.dropSet}'),
-                                        ],
                                       ),
-                                    ),
-                                ],
+                                    );
+                                  } else {
+                                    return const SizedBox();
+                                  }
+                                },
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  String _translateMuscleGroups(List<EMuscleGroup> muscleGroups) {
-    final translatedGroups = muscleGroups.map((group) {
-      return muscleGroupTranslations[group] ?? '';
-    }).toList();
-
-    return translatedGroups.join(", ");
-  }
-
-  String _formatRepetitions(Repetitions repetitions, ERepetitionsTypes setType) {
-    final setTypeString = _translateSetType(setType);
-
+  String _formatRepetitions(
+      Repetitions repetitions, ERepetitionsTypes setType) {
     if (setType == ERepetitionsTypes.TIME) {
-      return 'Tempo: ${repetitions.min}-${repetitions.max} (segundos)';
+      if (repetitions.min == repetitions.max) {
+        return '${repetitions.min} (segundos)';
+      } else {
+        return '${repetitions.min} - ${repetitions.max} (segundos)';
+      }
     } else {
-      return 'Repetições: ${repetitions.min}-${repetitions.max}';
-    }
-  }
-
-  String _translateSetType(ERepetitionsTypes setType) {
-    switch (setType) {
-      case ERepetitionsTypes.TIME:
-        return 'Time';
-      case ERepetitionsTypes.REPETITIONS:
-        return 'Repetitions';
-      default:
-        return '';
+      if (repetitions.min == repetitions.max) {
+        if (repetitions.max == 999) {
+          return 'Falha';
+        } else {
+          return '${repetitions.min}';
+        }
+      } else {
+        if (repetitions.min == 999 && repetitions.max == 999) {
+          return 'Falha';
+        } else {
+          return '${repetitions.min} - ${repetitions.max}';
+        }
+      }
     }
   }
 }
+

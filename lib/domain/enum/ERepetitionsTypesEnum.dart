@@ -1,0 +1,4 @@
+enum ERepetitionsTypes {
+  TIME,
+  REPETITIONS
+}

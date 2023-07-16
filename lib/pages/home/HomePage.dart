@@ -5,11 +5,12 @@ import 'package:gym_app_mobile/pages/home/HomeController.dart';
 import 'package:gym_app_mobile/utils/util.dart';
 
 import '../../domain/TrainingDomain.dart';
+import '../../domain/enum/MuscleGroupEnum.dart';
+
+
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,33 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(UtilApp.AppName),
-        backgroundColor: Colors.lightGreen,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text('John Doe'),
+              accountEmail: Text('johndoe@example.com'),
+              currentAccountPicture: CircleAvatar(
+                child: Text('JD'),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                //
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Sair'),
+              onTap: () {
+                controller.logout();
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: SizedBox(
@@ -31,10 +58,14 @@ class HomePage extends StatelessWidget {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
-              }
-
-              if (snapshot.data == null) {
-                return const SizedBox();
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Error loading training group'),
+                );
+              } else if (!snapshot.hasData) {
+                return const Center(
+                  child: Text('No data available'),
+                );
               }
 
               return Padding(
@@ -48,20 +79,6 @@ class HomePage extends StatelessWidget {
                             () {
                           return Column(
                             children: [
-                              Row(
-                                children: const [
-                                  Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Text(
-                                      "Meus treinos",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 23,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                 child: ExpansionTile(
@@ -84,8 +101,10 @@ class HomePage extends StatelessWidget {
                                       .map((group) => InkWell(
                                     onTap: () => Get.toNamed("${Routes.TRAINING_GROUP}/${group.id}"),
                                     child: ListTile(
-                                      tileColor: Colors.white,
                                       title: Text(group.name),
+                                      subtitle: Text(
+                                        "Grupos musculares: ${UtilApp.translateMuscleGroups(group.muscleGroups)}",
+                                      ),
                                     ),
                                   ))
                                       .toList(),
@@ -96,7 +115,7 @@ class HomePage extends StatelessWidget {
                         },
                       );
                     },
-                  )
+                  ),
                 ),
               );
             },
@@ -105,4 +124,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 }

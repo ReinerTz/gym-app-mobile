@@ -1,109 +1,131 @@
-import 'package:gym_app_mobile/domain/ExerciseDomain.dart';
+// To parse this JSON data, do
+//
+//     final groupItemDomain = groupItemDomainFromMap(jsonString);
 
-import '../utils/util.dart';
+import 'dart:convert';
+
+import 'package:gym_app_mobile/domain/ExerciseDomain.dart';
+import 'package:gym_app_mobile/utils/util.dart';
+
+import 'enum/ERepetitionsTypesEnum.dart';
+import 'enum/MuscleGroupEnum.dart';
 
 class GroupItemDomain {
-  String id;
-  ExerciseDomain exercise;
-  List<Set> sets;
-  RestInterval restInterval;
-  int order;
-  String? notes;
-  String? biSet;
-  List<GroupItemDomain>? substitutes;
-  String cadence;
+  final List<Item> items;
 
   GroupItemDomain({
-    required this.id,
-    required this.exercise,
-    required this.sets,
-    required this.restInterval,
-    required this.order,
-    this.notes,
-    this.biSet,
-    this.substitutes,
-    required this.cadence,
+    required this.items,
   });
 
-  factory GroupItemDomain.fromJson(Map<String, dynamic> json) {
-    return GroupItemDomain(
-      id: json['_id'],
-      exercise: ExerciseDomain.fromJson(json['exercise']),
-      sets: List<Set>.from(json['sets'].map((set) => Set.fromJson(set))),
-      restInterval: RestInterval.fromJson(json['restInterval']),
-      order: json['order'],
-      notes: json['notes'],
-      biSet: json['biSet'],
-      substitutes: List<GroupItemDomain>.from(json['substitutes']),
-      cadence: json['cadence'],
-    );
-  }
+  factory GroupItemDomain.fromJson(String str) => GroupItemDomain.fromMap(json.decode(str));
 
-  static List<GroupItemDomain> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => GroupItemDomain.fromJson(json)).toList();
-  }
+  String toJson() => json.encode(toMap());
+
+  factory GroupItemDomain.fromMap(Map<String, dynamic> json) => GroupItemDomain(
+    items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))),
+  );
+
+  Map<String, dynamic> toMap() => {
+    "items": List<dynamic>.from(items.map((x) => x.toMap())),
+  };
+}
+
+class Item {
+  final List<String> substitutes;
+  final ExerciseDomain exercise;
+  final List<Set> sets;
+  final int? dropSet;
+  final String cadence;
+  final int order;
+  final String id;
+
+  Item({
+    this.substitutes = const [],
+    required this.exercise,
+    required this.sets,
+    this.dropSet,
+    required this.cadence,
+    required this.order,
+    required this.id,
+  });
+
+  factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory Item.fromMap(Map<String, dynamic> json) => Item(
+    substitutes: List<String>.from(json["substitutes"] ?? []),
+    exercise: ExerciseDomain.fromJson(json["exercise"]),
+    sets: List<Set>.from(json["sets"].map((x) => Set.fromMap(x))),
+    dropSet: json["dropSet"],
+    cadence: json["cadence"],
+    order: json["order"],
+    id: json["_id"],
+  );
+
+  Map<String, dynamic> toMap() => {
+    "substitutes": List<dynamic>.from(substitutes.map((x) => x)),
+    "exercise": exercise,
+    "sets": List<dynamic>.from(sets.map((x) => x.toMap())),
+    "dropSet": dropSet,
+    "cadence": cadence,
+    "order": order,
+    "_id": id,
+  };
 }
 
 class Set {
-  int order;
-  Repetitions repetitions;
-  ERepetitionsTypes setType;
-  int dropSet;
+  final Repetitions repetitions;
+  final int order;
+  final ERepetitionsTypes setType;
+  final String id;
 
   Set({
-    required this.order,
     required this.repetitions,
+    required this.order,
     required this.setType,
-    required this.dropSet,
+    required this.id,
   });
 
+  factory Set.fromJson(String str) => Set.fromMap(json.decode(str));
 
+  String toJson() => json.encode(toMap());
 
-  factory Set.fromJson(Map<String, dynamic> json) {
-    return Set(
-      order: json['order'],
-      repetitions: Repetitions.fromJson(json['repetitions']),
-      setType: UtilApp.enumFromString<ERepetitionsTypes>(json['setType'], ERepetitionsTypes.values),
-      dropSet: json['dropSet'],
-    );
-  }
+  factory Set.fromMap(Map<String, dynamic> json) => Set(
+    repetitions: Repetitions.fromMap(json["repetitions"]),
+    order: json["order"],
+    setType: UtilApp.repetitionsTypesFromString(json["setType"]),
+    id: json["_id"],
+  );
+
+  Map<String, dynamic> toMap() => {
+    "repetitions": repetitions.toMap(),
+    "order": order,
+    "setType": setType,
+    "_id": id,
+  };
 }
 
 class Repetitions {
-  int min;
-  int max;
+  final int max;
+  final int min;
 
   Repetitions({
-    required this.min,
     required this.max,
+    required this.min,
   });
 
-  factory Repetitions.fromJson(Map<String, dynamic> json) {
-    return Repetitions(
-      min: json['min'],
-      max: json['max'],
-    );
-  }
-}
+  factory Repetitions.fromJson(String str) => Repetitions.fromMap(json.decode(str));
 
-enum ERepetitionsTypes {
-  TIME,
-  REPETITIONS
-}
+  String toJson() => json.encode(toMap());
 
-class RestInterval {
-  int min;
-  int max;
+  factory Repetitions.fromMap(Map<String, dynamic> json) => Repetitions(
+    max: json["max"],
+    min: json["min"],
+  );
 
-  RestInterval({
-    required this.min,
-    required this.max,
-  });
-
-  factory RestInterval.fromJson(Map<String, dynamic> json) {
-    return RestInterval(
-      min: json['min'],
-      max: json['max'],
-    );
-  }
+  Map<String, dynamic> toMap() => {
+    "max": max,
+    "min": min,
+  };
 }

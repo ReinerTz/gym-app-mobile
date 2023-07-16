@@ -1,3 +1,7 @@
+import 'package:gym_app_mobile/utils/util.dart';
+
+import 'enum/MuscleGroupEnum.dart';
+
 class TrainingDomain {
   String id;
   String name;
@@ -34,7 +38,7 @@ class TrainingDomain {
 class TrainingGroup {
   String id;
   String name;
-  List<String> muscleGroups;
+  List<EMuscleGroup> muscleGroups;
   List<String>? items;
 
   TrainingGroup({
@@ -45,8 +49,7 @@ class TrainingGroup {
   });
 
   factory TrainingGroup.fromJson(Map<String, dynamic> json) {
-    List<dynamic> muscleGroupsJson = json['muscleGroups'];
-    List<String> muscleGroups = muscleGroupsJson.map((group) => group.toString()).toList();
+    List<EMuscleGroup> muscleGroups = List<EMuscleGroup>.from(json['muscleGroups'].map((group) => UtilApp.muscleGroupFromString(group)));
     List<dynamic> itemsJson = json['items'];
     List<String> items = itemsJson.map((item) => item.toString()).toList();
 

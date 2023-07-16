@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -11,10 +12,16 @@ class AuthService {
   Future<void> login(AuthDomain body) async {
 
     try {
-      final token = await _provider.login(body);
+      final response = await _provider.login(body);
+      final authResponse = AuthResponse.fromJson(response.data!);
+      final token = authResponse.token;
+
       box.write("token", token);
       Get.offAllNamed(Routes.HOME);
     } catch (error) {
+      if (error is DioError) {
+         throw Exception((error).response?.data["message"].toString());
+      }
       throw Exception("Erro ao logar: $error");
     }
   }

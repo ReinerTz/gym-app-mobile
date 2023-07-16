@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -7,7 +9,6 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:gym_app_mobile/core/routes.dart';
 import 'package:gym_app_mobile/pages/home/HomePage.dart';
-import 'package:gym_app_mobile/pages/signin/SignInPage.dart';
 import 'package:gym_app_mobile/utils/TokenManager.dart';
 
 void main() async {
@@ -16,6 +17,19 @@ void main() async {
   runApp(const MyApp());
 }
 
+final ThemeData darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: Colors.grey.shade900,
+  appBarTheme: AppBarTheme(
+    backgroundColor: Colors.grey.shade900,
+  ),
+  cardColor: Colors.grey.shade700,
+  textTheme: const TextTheme(
+    bodyLarge: TextStyle(color: Colors.white),
+    titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+  ),
+);
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -23,17 +37,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(TokenManager());
+
+    PlatformDispatcher.instance.onError = (error, stack) {
+      String message = error.toString();
+      Get.snackbar("Error", message,
+          duration: const Duration(seconds: 6),
+          backgroundColor: const Color(0xFFB00020),
+          colorText: Colors.white);
+      return true;
+    };
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gym App',
       defaultTransition: Transition.native,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: const ColorScheme.light(
-          primary: Colors.indigo,
-          outline: Colors.indigo,
-        ),
-      ),
+      theme: darkTheme,
       home: const HomePage(),
       getPages: Routes.getPages(),
     );

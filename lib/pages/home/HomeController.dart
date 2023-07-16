@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:gym_app_mobile/domain/TrainingDomain.dart';
+import 'package:gym_app_mobile/services/AuthService.dart';
 import 'package:gym_app_mobile/services/TrainingService.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -22,5 +23,10 @@ class HomeController extends GetxController {
 
     List<TrainingDomain?> response = await _trainingService.getByUser(userId);
     return response!;
+  }
+
+  void logout() {
+    AuthService auth = AuthService();
+    auth.logout();
   }
 }

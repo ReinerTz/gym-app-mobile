@@ -9,8 +9,11 @@ class SignInController extends GetxController {
     loading.value = true;
     final provider = AuthService();
     AuthDomain auth = AuthDomain(email: email, password: password);
+
     try {
+      print('Iniciando login: email=$email, password=$password');
       await provider.login(auth);
+      print('Login concluído com sucesso');
     } finally {
       loading.value = false;
     }

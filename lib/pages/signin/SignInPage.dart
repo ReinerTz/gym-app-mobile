@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:gym_app_mobile/pages/signin/SignInController.dart';
 
@@ -20,14 +21,15 @@ class _SignInPageState extends State<SignInPage> {
       key: _formKey,
       child: Center(
         child: Card(
-          
           child: Container(
             height: 600,
             width: 300,
             padding: const EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
-                const SizedBox(height: 110,),
+                const SizedBox(
+                  height: 110,
+                ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Email'),
                   validator: (value) {
@@ -68,14 +70,15 @@ class _SignInPageState extends State<SignInPage> {
                         await controller.signIn(_email!, _password!);
                       }
                     },
-                    child: const Text('Entrar', style: TextStyle(color: Colors.white60),),
+                    child: const Text(
+                      'Entrar',
+                      style: TextStyle(color: Colors.white60),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
                 TextButton(
-                  onPressed: () {
-
-                  },
+                  onPressed: () {},
                   child: const Text('Esqueci minha senha'),
                 ),
                 const SizedBox(height: 15),
