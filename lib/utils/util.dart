@@ -1,4 +1,6 @@
+import 'package:get_storage/get_storage.dart';
 import 'package:gym_app_mobile/domain/enum/ERepetitionsTypesEnum.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../domain/enum/MuscleGroupEnum.dart';
 
@@ -64,5 +66,13 @@ class UtilApp {
     }).toList();
 
     return translatedGroups.join(", ");
+  }
+
+  static String getUserIdToken() {
+    final box = GetStorage();
+    String token = box.read("token");
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    String userId = decodedToken["userId"] as String;
+    return userId;
   }
 }

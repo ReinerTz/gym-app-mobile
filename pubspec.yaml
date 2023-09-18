@@ -44,6 +44,10 @@ dependencies:
   carousel_slider: ^4.2.1
   chewie: ^1.5.0
   video_player: ^2.6.1
+  image_picker: ^1.0.2
+  footer: ^0.0.4
+  syncfusion_flutter_charts: ^23.1.36
+  font_awesome_flutter: ^10.4.0
 
 dev_dependencies:
   flutter_test:

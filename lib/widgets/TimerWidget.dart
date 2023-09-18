@@ -12,7 +12,7 @@ class RestTimeWidget extends StatelessWidget {
   final VoidCallback pauseTimer;
   final VoidCallback resetTimer;
 
-  const RestTimeWidget({
+  const RestTimeWidget({super.key,
     required this.trainingGroup,
     required this.currentCount,
     required this.isTimerRunning,
@@ -37,70 +37,73 @@ class RestTimeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Tempo de descanso:',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          'Recomendado entre: ${trainingGroup.restInterval.min} à ${trainingGroup.restInterval.max} segs.',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black.withOpacity(0.3),
-              width: 2,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tempo de descanso:',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
+          ),
+          Text(
+            'Recomendado entre: ${trainingGroup.restInterval.min} à ${trainingGroup.restInterval.max} segs.',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
                 color: Colors.black.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                width: 2,
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Obx(() {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    onPressed: isTimerRunning.value ? pauseTimer : startTimer,
-                    icon: Icon(
-                      isTimerRunning.value ? Icons.pause : Icons.play_arrow,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 2,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Obx(() {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      onPressed: isTimerRunning.value ? pauseTimer : startTimer,
+                      icon: Icon(
+                        isTimerRunning.value ? Icons.pause : Icons.play_arrow,
+                      ),
                     ),
-                  ),
-                  Text(
-                    currentCount.value.toString(),
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: getCounterColor(),
+                    Text(
+                      currentCount.value.toString(),
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: getCounterColor(),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: resetTimer,
-                    icon: const Icon(Icons.stop),
-                  ),
-                ],
-              );
-            }),
+                    IconButton(
+                      onPressed: resetTimer,
+                      icon: const Icon(Icons.stop),
+                    ),
+                  ],
+                );
+              }),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
